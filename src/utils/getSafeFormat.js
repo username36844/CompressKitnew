@@ -1,14 +1,18 @@
 export const getSafeFormat = (originalExt, selectedFormat) => {
-  if (selectedFormat === "auto") return originalExt;
-
-  // Normalize
   const ext = originalExt.toLowerCase();
 
-  // PNG safety rule (avoid JPEG)
-  if (ext === "png" && selectedFormat === "jpeg") {
-    return "webp"; // fallback
+  // AUTO MODE (smart)
+  if (selectedFormat === "auto") {
+    if (ext === "png") return "webp";
+    if (ext === "jpeg" || ext === "jpg") return "jpeg";
+    if (ext === "webp") return "webp";
+    return ext;
   }
 
-  // Otherwise safe
+  // SAFETY RULE
+  if (ext === "png" && selectedFormat === "jpeg") {
+    return "webp";
+  }
+
   return selectedFormat;
 };
