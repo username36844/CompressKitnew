@@ -2,13 +2,17 @@ export default function SettingsPanel({
   settings,
   setSettings,
   onProcess,
-  hasFiles,
+  disabled,
 }) {
   return (
     <div className="bg-neutral-900 p-6 rounded-2xl sticky top-6">
-      <h2 className="text-lg font-medium mb-6">Compression Settings</h2>
+      
+      <h2 className="text-lg font-medium mb-6">
+        Compression Settings
+      </h2>
 
       <div className="space-y-5">
+
         {/* Max Size */}
         <div>
           <label className="block text-sm text-neutral-400 mb-1">
@@ -20,10 +24,10 @@ export default function SettingsPanel({
             onChange={(e) =>
               setSettings({
                 ...settings,
-                maxSize: Number(e.target.value),
+                maxSize: +e.target.value,
               })
             }
-            className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm"
+            className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded-lg"
           />
         </div>
 
@@ -38,23 +42,60 @@ export default function SettingsPanel({
             onChange={(e) =>
               setSettings({
                 ...settings,
-                maxWidth: Number(e.target.value),
+                maxWidth: +e.target.value,
               })
             }
-            className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm"
+            className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded-lg"
           />
         </div>
 
-        {/* Action Button */}
+        {/* Format */}
+        <div>
+          <label className="block text-sm text-neutral-400 mb-1">
+            Output Format
+          </label>
+          <select
+            value={settings.format}
+            onChange={(e) =>
+              setSettings({
+                ...settings,
+                format: e.target.value,
+              })
+            }
+            className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded-lg"
+          >
+            <option value="auto">Auto (recommended)</option>
+            <option value="jpeg">JPEG</option>
+            <option value="webp">WebP</option>
+            <option value="png">PNG</option>
+          </select>
+        </div>
+
+        {/* Prefix Rename */}
+        <div>
+          <label className="block text-sm text-neutral-400 mb-1">
+            File Name Prefix
+          </label>
+          <input
+            placeholder="e.g. project_"
+            onChange={(e) =>
+              setSettings({
+                ...settings,
+                rename: {
+                  ...settings.rename,
+                  prefix: e.target.value,
+                },
+              })
+            }
+            className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded-lg"
+          />
+        </div>
+
+        {/* Action */}
         <button
           onClick={onProcess}
-          disabled={!hasFiles}
-          className={`w-full py-2.5 rounded-lg text-sm font-medium transition
-            ${
-              hasFiles
-                ? "bg-white text-black hover:bg-neutral-200"
-                : "bg-neutral-700 text-neutral-400 cursor-not-allowed"
-            }`}
+          disabled={disabled}
+          className="w-full mt-2 bg-white text-black py-2.5 rounded-lg font-medium disabled:opacity-40"
         >
           Compress & Download
         </button>
