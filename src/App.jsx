@@ -93,6 +93,7 @@ export default function Home() {
             settings={settings}
             setSettings={setSettings}
             onProcess={processImages}
+            hasFiles={files.length > 0}
           />
         </div>
       </div>
