@@ -6,13 +6,9 @@ export default function SettingsPanel({
 }) {
   return (
     <div className="bg-neutral-900 p-6 rounded-2xl sticky top-6">
-      
-      <h2 className="text-lg font-medium mb-6">
-        Compression Settings
-      </h2>
+      <h2 className="text-lg font-medium mb-6">Compression Settings</h2>
 
       <div className="space-y-5">
-
         {/* Max Size */}
         <div>
           <label className="block text-sm text-neutral-400 mb-1">
@@ -57,16 +53,13 @@ export default function SettingsPanel({
           <select
             value={settings.format}
             onChange={(e) =>
-              setSettings({
-                ...settings,
-                format: e.target.value,
-              })
+              setSettings({ ...settings, format: e.target.value })
             }
             className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded-lg"
           >
-            <option value="auto">Auto (recommended)</option>
+            <option value="webp">WebP (recommended)</option>
+            <option value="auto">Auto</option>
             <option value="jpeg">JPEG</option>
-            <option value="webp">WebP</option>
             <option value="png">PNG</option>
           </select>
         </div>

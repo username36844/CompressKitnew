@@ -15,7 +15,7 @@ export default function Home() {
   const [settings, setSettings] = useState({
     maxSize: 100,
     maxWidth: 1920,
-    format: "auto",
+    format: "webp", // ✅ default set here
     rename: {
       prefix: "",
       suffix: "",
@@ -48,76 +48,69 @@ export default function Home() {
     setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, name } : f)));
   };
 
-const processImages = async () => {
-  setIsProcessing(true);
+  const processImages = async () => {
+    setIsProcessing(true);
 
-  const limit = pLimit(3);
+    const limit = pLimit(3);
 
-  const results = await Promise.all(
-    files.map((item, index) =>
-      limit(async () => {
-        // Set processing state
-        setFiles((prev) =>
-          prev.map((f) =>
-            f.id === item.id ? { ...f, status: "processing" } : f
-          )
-        );
+    const results = await Promise.all(
+      files.map((item, index) =>
+        limit(async () => {
+          // Set processing state
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === item.id ? { ...f, status: "processing" } : f,
+            ),
+          );
 
-        // ✅ Resolve safe format
-        const safeFormat = getSafeFormat(
-          item.extension,
-          settings.format
-        );
+          // ✅ Resolve safe format
+          const safeFormat = getSafeFormat(item.extension, settings.format);
 
-        const compressed = await compressImage(
-          item.file,
-          { ...settings, format: safeFormat },
-          (progress) => {
-            setFiles((prev) =>
-              prev.map((f) =>
-                f.id === item.id ? { ...f, progress } : f
-              )
-            );
-          }
-        );
+          const compressed = await compressImage(
+            item.file,
+            { ...settings, format: safeFormat },
+            (progress) => {
+              setFiles((prev) =>
+                prev.map((f) => (f.id === item.id ? { ...f, progress } : f)),
+              );
+            },
+          );
 
-        // ✅ Ensure correct extension
-        const outputExt =
-          settings.format === "auto"
-            ? item.extension
-            : safeFormat;
+          // ✅ Ensure correct extension
+          const outputExt =
+            settings.format === "auto" ? item.extension : safeFormat;
 
-        const fileName = buildFileName(
-          { ...item, extension: outputExt },
-          index,
-          settings.rename
-        );
+          const fileName = buildFileName(
+            { ...item, extension: outputExt },
+            index,
+            settings.rename,
+          );
 
-        const finalFile = new File([compressed], fileName, {
-          type: compressed.type,
-        });
+          const finalFile = new File([compressed], fileName, {
+            type: compressed.type,
+          });
 
-        // Update UI
-        setFiles((prev) =>
-          prev.map((f) =>
-            f.id === item.id
-              ? {
-                  ...f,
-                  compressedSize: compressed.size,
-                  status: "done",
-                }
-              : f
-          )
-        );
+          // Update UI
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === item.id
+                ? {
+                    ...f,
+                    compressedSize: compressed.size,
+                    status: "done",
+                  }
+                : f,
+            ),
+          );
 
-        return finalFile;
-      })
-    )
-  );
+          return finalFile;
+        }),
+      ),
+    );
 
-  await downloadZip(results);
-  setIsProcessing(false);
-};
+    await downloadZip(results);
+    setIsProcessing(false);
+  };
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
