@@ -4,7 +4,6 @@ export default function SettingsPanel({ settings, setSettings, onProcess }) {
       <h2 className="text-lg font-medium mb-6">Compression Settings</h2>
 
       <div className="space-y-5">
-        
         {/* Max Size */}
         <div>
           <label

@@ -13,13 +13,20 @@ export default function Home() {
   });
 
   const addFiles = (selected) => {
-    const mapped = selected.map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      preview: URL.createObjectURL(file),
-      originalSize: file.size,
-      compressedSize: null,
-    }));
+    const mapped = selected.map((file) => {
+      const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+      const extension = file.name.split(".").pop();
+
+      return {
+        id: crypto.randomUUID(),
+        file,
+        preview: URL.createObjectURL(file),
+        originalSize: file.size,
+        compressedSize: null,
+        name: nameWithoutExt,
+        extension,
+      };
+    });
 
     setFiles((prev) => [...prev, ...mapped]);
   };
@@ -32,6 +39,13 @@ export default function Home() {
     });
   };
 
+  const updateFileName = (id, newName) => {
+    setFiles((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, name: newName } : f)),
+    );
+  };
+
+  // ✅ ADD HERE
   const processImages = async () => {
     const results = [];
 
@@ -39,17 +53,21 @@ export default function Home() {
       const compressed = await compressImage(
         item.file,
         settings.maxSize,
-        settings.maxWidth
+        settings.maxWidth,
       );
 
-      results.push(compressed);
+      const renamedFile = new File(
+        [compressed],
+        `${item.name}.${item.extension}`,
+        { type: compressed.type },
+      );
+
+      results.push(renamedFile);
 
       setFiles((prev) =>
         prev.map((f) =>
-          f.id === item.id
-            ? { ...f, compressedSize: compressed.size }
-            : f
-        )
+          f.id === item.id ? { ...f, compressedSize: compressed.size } : f,
+        ),
       );
     }
 
@@ -59,13 +77,16 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
       <div className="max-w-7xl mx-auto px-6 py-10">
-        
         <h1 className="text-2xl mb-6">CompressKit</h1>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <UploadArea onFiles={addFiles} />
-            <FileGrid files={files} onRemove={removeFile} />
+            <FileGrid
+              files={files}
+              onRemove={removeFile}
+              onRename={updateFileName}
+            />
           </div>
 
           <SettingsPanel
