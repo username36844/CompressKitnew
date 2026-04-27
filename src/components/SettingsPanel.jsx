@@ -45,6 +45,61 @@ export default function SettingsPanel({
           />
         </div>
 
+        {/* crop */}
+        <div>
+          <label className="flex items-center gap-2 text-sm text-neutral-400 mb-2">
+            <input
+              type="checkbox"
+              checked={settings.crop.enabled}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  crop: {
+                    ...settings.crop,
+                    enabled: e.target.checked,
+                  },
+                })
+              }
+            />
+            Enable Crop (Cover)
+          </label>
+
+          {settings.crop.enabled && (
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={settings.crop.width}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    crop: {
+                      ...settings.crop,
+                      width: +e.target.value,
+                    },
+                  })
+                }
+                className="w-full p-2 bg-neutral-800 rounded"
+                placeholder="Width"
+              />
+              <input
+                type="number"
+                value={settings.crop.height}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    crop: {
+                      ...settings.crop,
+                      height: +e.target.value,
+                    },
+                  })
+                }
+                className="w-full p-2 bg-neutral-800 rounded"
+                placeholder="Height"
+              />
+            </div>
+          )}
+        </div>
+
         {/* Format */}
         <div>
           <label className="block text-sm text-neutral-400 mb-1">

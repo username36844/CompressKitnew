@@ -7,6 +7,7 @@ import { compressImage } from "../src/utils/compressImage";
 import { downloadZip } from "../src/utils/zipFiles";
 import { buildFileName } from "../src/utils/rename";
 import { getSafeFormat } from "./utils/getSafeFormat";
+import { cropImageToCover } from "./utils/cropImage";
 
 export default function Home() {
   const [files, setFiles] = useState([]);
@@ -15,7 +16,12 @@ export default function Home() {
   const [settings, setSettings] = useState({
     maxSize: 100,
     maxWidth: 1920,
-    format: "webp", // ✅ default set here
+    format: "webp",
+    crop: {
+      enabled: false,
+      width: 800,
+      height: 500,
+    },
     rename: {
       prefix: "",
       suffix: "",
@@ -56,59 +62,97 @@ export default function Home() {
     const results = await Promise.all(
       files.map((item, index) =>
         limit(async () => {
-          // Set processing state
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === item.id ? { ...f, status: "processing" } : f,
-            ),
-          );
-
-          // ✅ Resolve safe format
-          const safeFormat = getSafeFormat(item.extension, settings.format);
-
-          const compressed = await compressImage(
-            item.file,
-            { ...settings, format: safeFormat },
-            (progress) => {
-              setFiles((prev) =>
-                prev.map((f) => (f.id === item.id ? { ...f, progress } : f)),
-              );
-            },
-          );
-
-          // ✅ Ensure correct extension
-          const outputExt =
-            settings.format === "auto" ? item.extension : safeFormat;
-
-          const fileName = buildFileName(
-            { ...item, extension: outputExt },
-            index,
-            settings.rename,
-          );
-
-          const finalFile = new File([compressed], fileName, {
-            type: compressed.type,
-          });
-
-          // Update UI
+          // 1. mark processing
           setFiles((prev) =>
             prev.map((f) =>
               f.id === item.id
-                ? {
-                    ...f,
-                    compressedSize: compressed.size,
-                    status: "done",
-                  }
+                ? { ...f, status: "processing", progress: 0 }
                 : f,
             ),
           );
 
-          return finalFile;
+          try {
+            // 2. resolve safe format
+            const safeFormat = getSafeFormat(item.extension, settings.format);
+
+            // 3. decide input file (crop or original)
+            let inputFile = item.file;
+
+            if (settings.crop?.enabled) {
+              const croppedBlob = await cropImageToCover(
+                item.file,
+                settings.crop.width,
+                settings.crop.height,
+              );
+
+              inputFile = new File([croppedBlob], item.file.name, {
+                type: "image/jpeg", // temp format for processing
+              });
+            }
+
+            // 4. compress (with progress)
+            const compressed = await compressImage(
+              inputFile,
+              { ...settings, format: safeFormat },
+              (progress) => {
+                setFiles((prev) =>
+                  prev.map((f) => (f.id === item.id ? { ...f, progress } : f)),
+                );
+              },
+            );
+
+            // 5. fix extension
+            const outputExt =
+              settings.format === "auto" ? item.extension : safeFormat;
+
+            // 6. build filename
+            const fileName = buildFileName(
+              { ...item, extension: outputExt },
+              index,
+              settings.rename,
+            );
+
+            // 7. create final file
+            const finalFile = new File([compressed], fileName, {
+              type: compressed.type,
+            });
+
+            // 8. update UI
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === item.id
+                  ? {
+                      ...f,
+                      compressedSize: compressed.size,
+                      status: "done",
+                      progress: 100,
+                    }
+                  : f,
+              ),
+            );
+
+            return finalFile;
+          } catch (err) {
+            // error handling (important for production feel)
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === item.id ? { ...f, status: "error" } : f,
+              ),
+            );
+
+            return null;
+          }
         }),
       ),
     );
 
-    await downloadZip(results);
+    // remove failed ones
+    const validFiles = results.filter(Boolean);
+
+    if (validFiles.length) {
+      await downloadZip(validFiles);
+    }
+
     setIsProcessing(false);
   };
 
