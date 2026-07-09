@@ -1,4 +1,4 @@
-export const buildFileName = (item, index, renameOptions) => {
+export const buildFileName = (item, index, renameOptions, addNumber = true) => {
   const base = item.name || "image";
 
   let finalName = base;
@@ -11,7 +11,7 @@ export const buildFileName = (item, index, renameOptions) => {
     finalName = finalName + renameOptions.suffix;
   }
 
-  if (renameOptions.numbering) {
+  if (renameOptions.numbering && addNumber) {
     finalName = `${finalName}-${String(index + 1).padStart(2, "0")}`;
   }
 

@@ -3,13 +3,12 @@ import imageCompression from "browser-image-compression";
 export const compressImage = async (
   file,
   { maxSize, maxWidth, format },
-  onProgress
+  onProgress,
 ) => {
   let quality = 0.8;
   let compressed = file;
 
-  const targetType =
-    format === "auto" ? file.type : `image/${format}`;
+  const targetType = format === "auto" ? file.type : `image/${format}`;
 
   while (true) {
     const options = {

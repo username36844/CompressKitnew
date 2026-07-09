@@ -1,11 +1,12 @@
 export default function SettingsPanel({
   settings,
+  numbering,
   setSettings,
   onProcess,
   disabled,
 }) {
   return (
-    <div className="bg-neutral-900 p-6 rounded-2xl sticky top-6">
+    <div className="bg-neutral-900 p-6 rounded-2xl sticky h-auto top-6">
       <h2 className="text-lg font-medium mb-6">Compression Settings</h2>
 
       <div className="space-y-5">
@@ -139,14 +140,34 @@ export default function SettingsPanel({
           />
         </div>
 
+        {/* File numbering */}
+        <div>
+          <label className="flex items-center gap-2 text-sm text-neutral-400 mb-2">
+            <input
+              type="checkbox"
+              checked={settings.rename.numbering}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  rename: {
+                    ...prev.rename,
+                    numbering: e.target.checked,
+                  },
+                }))
+              }
+            />
+            Add numbering to file names (eg: filename-01.webp etc.)
+          </label>
+        </div>
+
         {/* Action */}
-        <button
+        {/* <button
           onClick={onProcess}
           disabled={disabled}
           className="w-full mt-2 bg-white text-black py-2.5 rounded-lg font-medium disabled:opacity-40"
         >
           Compress & Download
-        </button>
+        </button> */}
       </div>
     </div>
   );

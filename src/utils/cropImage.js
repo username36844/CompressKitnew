@@ -37,7 +37,7 @@ export const cropImageToCover = (file, width, height) => {
           resolve(blob);
         },
         "image/jpeg", // temp format
-        0.95
+        0.95,
       );
     };
 
