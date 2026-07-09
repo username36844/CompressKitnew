@@ -27,7 +27,7 @@ export default function FileGrid({
         return (
           <div
             key={item.id}
-            className=" relative bg-neutral-900 p-3 rounded-xl"
+            className=" relative bg-neutral-900 p-3 rounded-xl flex flex-col gap-2"
           >
             <div className="relative aspect-video overflow-hidden rounded-xl bg-neutral-800">
               <img
@@ -50,14 +50,14 @@ export default function FileGrid({
               </span>
             </div>
 
-            <p className="text-xs text-neutral-400 mt-2 mb-2">
+            <p className="text-xs text-neutral-400">
               Original: {(item.originalSize / 1024).toFixed(1)}
               KB
             </p>
 
             {item.progress > 0 && <ProgressBar value={item.progress} />}
 
-            <div className="flex gap-4 flex-wrap items-center justify-between my-1">
+            <div className="flex gap-4 flex-wrap items-center justify-between mb-1">
               {item.compressedSize && (
                 <div className="flex items-center gap-2">
                   <p className="text-xs text-green-400 mt-1">
@@ -82,7 +82,7 @@ export default function FileGrid({
               )}
             </div>
 
-            <div className="flex gap-2 mt-3">
+            <div className="flex gap-2 mt-auto">
               <button
                 title="Crop image"
                 onClick={() => onCrop(item.id)}

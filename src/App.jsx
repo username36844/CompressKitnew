@@ -240,9 +240,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white">
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <header className="mb-10">
+    <div className="h-screen overflow-hidden bg-neutral-950 text-white">
+      <div className="h-full max-w-7xl mx-auto px-6 py-6 flex flex-col">
+        {/* Header */}
+        <header className="mb-6 shrink-0">
           <h1 className="text-3xl font-semibold">CompressKit</h1>
 
           <p className="text-neutral-400 mt-2">
@@ -250,42 +251,54 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <UploadArea onFiles={addFiles} />
+        {/* Main Workspace */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 min-h-0">
+          {/* LEFT SIDE */}
+          <div className="lg:col-span-2 flex flex-col min-h-0 gap-6">
+            {/* Upload stays fixed */}
+            <div className="shrink-0">
+              <UploadArea onFiles={addFiles} />
+            </div>
 
-            {files.length === 0 ? (
-              <div className="bg-neutral-900 rounded-xl p-10 text-center text-neutral-400">
-                No images uploaded yet
-              </div>
-            ) : (
-              <FileGrid
-                files={files}
-                onRemove={(id) =>
-                  setFiles((prev) => prev.filter((file) => file.id !== id))
-                }
-                onRename={updateFileName}
-                onCrop={(id) => {
-                  const file = files.find((item) => item.id === id);
+            {/* Image Grid Scroll Area */}
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              {files.length === 0 ? (
+                <div className="bg-neutral-900 rounded-xl p-10 text-center text-neutral-400">
+                  No images uploaded yet
+                </div>
+              ) : (
+                <FileGrid
+                  files={files}
+                  onRemove={(id) =>
+                    setFiles((prev) => prev.filter((file) => file.id !== id))
+                  }
+                  onRename={updateFileName}
+                  onCrop={(id) => {
+                    const file = files.find((item) => item.id === id);
 
-                  setCropTarget(file);
-                }}
-                onCompress={compressSingle}
-                onDownload={downloadSingle}
-              />
-            )}
+                    setCropTarget(file);
+                  }}
+                  onCompress={compressSingle}
+                  onDownload={downloadSingle}
+                />
+              )}
+            </div>
           </div>
 
-          <SettingsPanel
-            settings={settings}
-            setSettings={setSettings}
-            onProcess={compressImages}
-            onDownload={downloadAll}
-            disabled={!files.length || isProcessing}
-          />
+          {/* RIGHT SIDE SETTINGS */}
+          <div className="lg:sticky lg:top-0 h-fit">
+            <SettingsPanel
+              settings={settings}
+              setSettings={setSettings}
+              onProcess={compressImages}
+              onDownload={downloadAll}
+              disabled={!files.length || isProcessing}
+            />
+          </div>
         </div>
       </div>
 
+      {/* Crop Modal */}
       <CropModal
         open={Boolean(cropTarget)}
         image={cropTarget}

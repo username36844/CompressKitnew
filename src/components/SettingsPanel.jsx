@@ -141,8 +141,8 @@ export default function SettingsPanel({
         </div>
 
         {/* File numbering */}
-        <div>
-          <label className="flex items-center gap-2 text-sm text-neutral-400 mb-2">
+        <div className="mt-8">
+          <label className="flex items-center gap-2 text-sm text-neutral-400">
             <input
               type="checkbox"
               checked={settings.rename.numbering}
@@ -156,8 +156,9 @@ export default function SettingsPanel({
                 }))
               }
             />
-            Add numbering to file names (eg: filename-01.webp etc.)
+            Add numbering to file names
           </label>
+          <p className="text-sm text-neutral-500 ml-5">(eg: filename-01.webp etc.)</p>
         </div>
 
         {/* Action */}
